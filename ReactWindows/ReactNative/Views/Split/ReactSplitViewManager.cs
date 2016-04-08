@@ -71,6 +71,14 @@ namespace ReactNative.Views.Split
                             { "Right", (int)SplitViewPanePlacement.Right },
                         }
                     },
+                    {
+                        "DisplayModes",
+                        new Dictionary<string, object>
+                        {
+                            { "Overlay", (int)SplitViewDisplayMode.Overlay },
+                            { "Inline", (int)SplitViewDisplayMode.Inline },
+                        }
+                    },
                 };
             }
         }
@@ -101,6 +109,26 @@ namespace ReactNative.Views.Split
             {
                 // TODO: default pane width?
             }
+        }
+
+        [ReactProperty("displayMode")]
+        public void SetDisplayMode(SplitView view, int? mode)
+        {
+            var displayMode = ((SplitViewDisplayMode?)mode) ?? default(SplitViewDisplayMode);
+            switch (displayMode)
+            {
+                case SplitViewDisplayMode.Overlay:
+                case SplitViewDisplayMode.Inline:
+                case SplitViewDisplayMode.CompactOverlay:
+                case SplitViewDisplayMode.CompactInline:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(
+                        nameof(mode),
+                        $"Unknown pane position '{displayMode}'.");
+            }
+
+            view.DisplayMode = displayMode;
         }
 
         public override void AddView(SplitView parent, FrameworkElement child, int index)
@@ -196,10 +224,6 @@ namespace ReactNative.Views.Split
                     nameof(index),
                     $"'{Name}' only supports two child, the content and the pane.");
             }
-        }
-
-        public override void UpdateExtraData(SplitView root, object extraData)
-        {
         }
 
         protected override void AddEventEmitters(ThemedReactContext reactContext, SplitView view)

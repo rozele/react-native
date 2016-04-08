@@ -64,6 +64,7 @@ var SplitViewValidAttributes = {
 var SplitViewWindows = React.createClass({
   statics: {
     positions: SplitViewConsts.PanePositions,
+    displayModes: SplitViewConsts.DisplayModes,
   },
 
   propTypes: {
@@ -85,10 +86,27 @@ var SplitViewWindows = React.createClass({
       SplitViewConsts.PanePositions.Right
     ]),
     /**
+     * Specifies the display mode of the pane.
+     */
+    displayMode: ReactPropTypes.oneOf([
+      SplitViewConsts.DisplayModes.Overlay,
+      SplitViewConsts.DisplayModes.Inline
+    ]),
+    /**
      * Specifies the width of the pane, more precisely the width of the view that be pulled in
      * from the edge of the window.
      */
     paneWidth: ReactPropTypes.number,
+    /**
+     * Specifies the lock mode of the pane. The pane can be locked in 2 states:
+     * - unlocked (default), meaning that the drawer will respond to touch gestures.
+     * - locked open, meaning that the drawer will stay opened and not respond to gestures.
+     * The drawer may still be opened and closed programmatically (`openDrawer`/`closeDrawer`).
+     */
+    paneLockMode: ReactPropTypes.oneOf([
+      'unlocked',
+      'locked-open'
+    ]),
     /**
      * Function called whenever the pane view has been opened.
      */
@@ -124,6 +142,8 @@ var SplitViewWindows = React.createClass({
         ref={RK_PANE_REF}
         paneWidth={this.props.paneWidth}
         panePosition={this.props.panePosition}
+        displayMode={this.props.displayMode}
+        paneLockMode={this.props.paneLockMode}
         style={styles.base}
         onPaneOpen={this._onPaneOpen}
         onPaneClose={this._onPaneClose}>
