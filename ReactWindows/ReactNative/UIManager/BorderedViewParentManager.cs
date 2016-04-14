@@ -8,7 +8,7 @@ namespace ReactNative.UIManager
     /// <summary>
     /// Class providing border management API for  view managers.
     /// </summary>
-    public abstract class BorderedViewParentManager<TFrameworkElement> : ViewParentManager<Border>
+    public abstract class BorderedViewParentManager<TFrameworkElement> : ViewParentManager<BorderedContentControl>
         where TFrameworkElement : FrameworkElement
     {
         private static readonly Brush s_defaultBorderBrush = new SolidColorBrush(Colors.Black);
@@ -19,11 +19,9 @@ namespace ReactNative.UIManager
         /// <param name="view">The view panel.</param>
         /// <param name="radius">The border radius value.</param>
         [ReactProperty("borderRadius")]
-        public void SetBorderRadius(Border view, double? radius)
+        public void SetBorderRadius(BorderedContentControl view, double? radius)
         {
-            view.CornerRadius = radius.HasValue
-                ? new CornerRadius(radius.Value)
-                : default(CornerRadius);
+            view.SetBorderRadius(radius);
         }
 
         /// <summary>
@@ -32,11 +30,9 @@ namespace ReactNative.UIManager
         /// <param name="view">The view panel.</param>
         /// <param name="color">The masked color value.</param>
         [ReactProperty(ViewProperties.BackgroundColor)]
-        public void SetBackgroundColor(Border view, uint? color)
+        public void SetBackgroundColor(BorderedContentControl view, uint? color)
         {
-            view.Background = color.HasValue
-                ? new SolidColorBrush(ColorHelpers.Parse(color.Value))
-                : null;
+            view.SetBackgroundColor(color);
         }
 
         /// <summary>
@@ -45,11 +41,9 @@ namespace ReactNative.UIManager
         /// <param name="view">The view panel.</param>
         /// <param name="color">The color hex code.</param>
         [ReactProperty("borderColor", CustomType = "Color")]
-        public void SetBorderColor(Border view, uint? color)
+        public void SetBorderColor(BorderedContentControl view, uint? color)
         {
-            view.BorderBrush = color.HasValue
-                ? new SolidColorBrush(ColorHelpers.Parse(color.Value))
-                : s_defaultBorderBrush;
+            view.SetBorderColor(color);
         }
 
         /// <summary>
@@ -65,7 +59,7 @@ namespace ReactNative.UIManager
             ViewProperties.BorderTopWidth,
             ViewProperties.BorderBottomWidth,
             DefaultDouble = double.NaN)]
-        public void SetBorderWidth(Border view, int index, double? width)
+        public void SetBorderWidth(BorderedContentControl view, int index, double? width)
         {
             view.SetBorderWidth(ViewProperties.BorderSpacingTypes[index], width);
         }
@@ -76,7 +70,7 @@ namespace ReactNative.UIManager
         /// <param name="view">The view instance.</param>
         /// <param name="collapsible">The flag.</param>
         [ReactProperty(ViewProperties.Collapsible)]
-        public void SetCollapsible(Border view, bool collapsible)
+        public void SetCollapsible(BorderedContentControl view, bool collapsible)
         {
             // no-op: it's here only so that "collapsable" property is exported to JS. The value is actually
             // handled in NativeViewHierarchyOptimizer
@@ -88,7 +82,7 @@ namespace ReactNative.UIManager
         /// <param name="parent">The parent view.</param>
         /// <param name="child">The child view.</param>
         /// <param name="index">The index.</param>
-        public sealed override void AddView(Border parent, FrameworkElement child, int index)
+        public sealed override void AddView(BorderedContentControl parent, FrameworkElement child, int index)
         {
             var inner = GetInnerElement(parent);
             AddView(inner, child, index);
@@ -99,7 +93,7 @@ namespace ReactNative.UIManager
         /// </summary>
         /// <param name="parent">The view parent.</param>
         /// <returns>The number of children.</returns>
-        public sealed override int GetChildCount(Border parent)
+        public sealed override int GetChildCount(BorderedContentControl parent)
         {
             var inner = GetInnerElement(parent);
             return GetChildCount(inner);
@@ -111,7 +105,7 @@ namespace ReactNative.UIManager
         /// <param name="parent">The parent view.</param>
         /// <param name="index">The index.</param>
         /// <returns>The child view.</returns>
-        public override FrameworkElement GetChildAt(Border parent, int index)
+        public override FrameworkElement GetChildAt(BorderedContentControl parent, int index)
         {
             var inner = GetInnerElement(parent);
             return GetChildAt(inner, index);
@@ -122,7 +116,7 @@ namespace ReactNative.UIManager
         /// </summary>
         /// <param name="parent">The view parent.</param>
         /// <param name="index">The index.</param>
-        public override void RemoveChildAt(Border parent, int index)
+        public override void RemoveChildAt(BorderedContentControl parent, int index)
         {
             var inner = GetInnerElement(parent);
             RemoveChildAt(inner, index);
@@ -132,7 +126,7 @@ namespace ReactNative.UIManager
         /// Removes all children from the view parent.
         /// </summary>
         /// <param name="parent">The view parent.</param>
-        public override void RemoveAllChildren(Border parent)
+        public override void RemoveAllChildren(BorderedContentControl parent)
         {
             var inner = GetInnerElement(parent);
             RemoveAllChildren(inner);
@@ -143,13 +137,12 @@ namespace ReactNative.UIManager
         /// </summary>
         /// <param name="reactContext">The react context.</param>
         /// <returns>The view instance.</returns>
-        protected sealed override Border CreateViewInstance(ThemedReactContext reactContext)
+        protected sealed override BorderedContentControl CreateViewInstance(ThemedReactContext reactContext)
         {
             var inner = CreateInnerElement(reactContext);
-            return new Border
+            return new BorderedContentControl(inner)
             {
-                BorderBrush = s_defaultBorderBrush,
-                Child = inner
+                IsTabStop = true,
             };
         }
 
@@ -201,9 +194,9 @@ namespace ReactNative.UIManager
         /// </summary>
         /// <param name="parent">The parent view.</param>
         /// <returns>The inner element.</returns>
-        protected TFrameworkElement GetInnerElement(Border parent)
+        protected TFrameworkElement GetInnerElement(BorderedContentControl parent)
         {
-            return (TFrameworkElement)parent.Child;
+            return (TFrameworkElement)parent.Content;
         }
     }
 }
