@@ -16,10 +16,16 @@ exports.getProjectConfig = function getProjectConfig() {
   const folder = process.cwd();
   const rnpm = getRNPMConfig(folder);
 
-  return Object.assign({}, rnpm, {
+  let config = Object.assign({}, rnpm, {
     ios: ios.projectConfig(folder, rnpm.ios || {}),
     android: android.projectConfig(folder, rnpm.android || {}),
     assets: findAssets(folder, rnpm.assets),
+  });
+
+  rnpm.platforms.forEach(platform =>
+  {
+    const projectConfig = require(platform.projectConfig);
+    config[platform.name] = projectConfig(folder, platform);
   });
 };
 
