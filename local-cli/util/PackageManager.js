@@ -38,8 +38,12 @@ function callYarnOrNpm(yarnCommand, npmCommand) {
 
   const args = command.split(' ');
   const cmd = args.shift();
+  let fixedCmd = cmd;
+  if (process.platform === 'win32') {
+    fixedCmd = `${cmd}.cmd`;
+  }
 
-  const res = spawnSync(cmd, args, spawnOpts);
+  const res = spawnSync(fixedCmd, args, spawnOpts);
 
   return res;
 }
