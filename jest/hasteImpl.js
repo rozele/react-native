@@ -67,16 +67,18 @@ function isHastePath(filePath /*: string */) /*: boolean */ {
     return false;
   }
 
-  const root = ROOTS.find(r => filePath.startsWith(r));
+  // resolve path for win32 path separators
+  let resolvedFilePath = path.resolve(filePath);
+  const root = ROOTS.find(r => resolvedFilePath.startsWith(r));
   if (!root) {
     return false;
   }
 
-  filePath = filePath.substr(root.length);
-  if (BLACKLISTED_PATTERNS.some(pattern => pattern.test(filePath))) {
+  resolvedFilePath = resolvedFilePath.substr(root.length);
+  if (BLACKLISTED_PATTERNS.some(pattern => pattern.test(resolvedFilePath))) {
     return false;
   }
-  return WHITELISTED_PREFIXES.some(prefix => filePath.startsWith(prefix));
+  return WHITELISTED_PREFIXES.some(prefix => resolvedFilePath.startsWith(prefix));
 }
 
 module.exports = haste;
